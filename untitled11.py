@@ -9,9 +9,8 @@ Original file is located at
 
 import pandas as pd
 import numpy as np
-import matplotlib
-matplotlib.use('Agg')  # Avoids GUI-related issues
 import matplotlib.pyplot as plt
+matplotlib.use('Agg')  # Avoids GUI-related issues
 import seaborn as sns
 
 # Prompt the user for the file path
