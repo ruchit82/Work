@@ -9,6 +9,8 @@ Original file is located at
 
 import pandas as pd
 import numpy as np
+import matplotlib
+matplotlib.use('Agg')  # Avoids GUI-related issues
 import matplotlib.pyplot as plt
 import seaborn as sns
 
@@ -18,6 +20,8 @@ file_path = input("Enter the path to the Excel file: ")
 # Load the data
 try:
     data = pd.read_excel(file_path)
+except FileNotFoundError:
+    raise ValueError("The file was not found. Please check the path and try again.")
 except Exception as e:
     raise ValueError(f"Error reading the Excel file: {e}")
 
@@ -27,12 +31,15 @@ print(data.head(10))
 
 # Check for required columns
 required_columns = ['DocDate', 'type', 'parName', 'CATEGORY', 'weight', 'noPcs']
-if not all(col in data.columns for col in required_columns):
-    raise ValueError(f"The dataset must contain these columns: {required_columns}")
+missing_columns = [col for col in required_columns if col not in data.columns]
+if missing_columns:
+    raise ValueError(f"The dataset must contain these columns: {missing_columns}")
 
 # Remove unwanted categories
-excluded_categories = ['ST', 'LOOSE PCS', 'PARA BIDS', 'Langadi', 'PROCESS LOSS',
-                       'SCRAP PCC', 'BALL CHAIN', 'SIGNING TAR', 'Fine']
+excluded_categories = [
+    'ST', 'LOOSE PCS', 'PARA BIDS', 'Langadi', 'PROCESS LOSS', 
+    'SCRAP PCC', 'BALL CHAIN', 'SIGNING TAR', 'Fine'
+]
 df = data[~data['CATEGORY'].isin(excluded_categories)]
 
 # Print unique categories before and after filtering
@@ -76,7 +83,8 @@ plt.title('Top 10 Parties by Weight', fontsize=16)
 plt.xlabel('Weight', fontsize=12)
 plt.ylabel('Party Name', fontsize=12)
 plt.tight_layout()
-plt.show()
+plt.savefig("top_10_parties_by_weight.png")
+plt.close()
 
 # Bar Plot: Bottom 5 Parties by Weight
 plt.figure(figsize=(10, 6))
@@ -85,7 +93,8 @@ plt.title('Bottom 5 Parties by Weight', fontsize=16)
 plt.xlabel('Weight', fontsize=12)
 plt.ylabel('Party Name', fontsize=12)
 plt.tight_layout()
-plt.show()
+plt.savefig("bottom_5_parties_by_weight.png")
+plt.close()
 
 # Pie Chart: Category-wise Weight Distribution (Top 15)
 plt.figure(figsize=(8, 8))
@@ -95,7 +104,8 @@ plt.pie(top_15_categories['weight'], labels=top_15_categories['CATEGORY'],
 plt.title('Category-wise Weight Distribution (Top 15)', fontsize=16)
 plt.axis('equal')
 plt.tight_layout()
-plt.show()
+plt.savefig("category_weight_distribution.png")
+plt.close()
 
 # Bar Plot: Top 10 Categories by Weight
 plt.figure(figsize=(10, 6))
@@ -104,7 +114,8 @@ plt.title('Top 10 Categories by Weight', fontsize=16)
 plt.xlabel('Weight', fontsize=12)
 plt.ylabel('Category', fontsize=12)
 plt.tight_layout()
-plt.show()
+plt.savefig("top_10_categories_by_weight.png")
+plt.close()
 
 # Bar Plot: Bottom 5 Categories by Weight
 plt.figure(figsize=(10, 6))
@@ -113,27 +124,33 @@ plt.title('Bottom 5 Categories by Weight', fontsize=16)
 plt.xlabel('Weight', fontsize=12)
 plt.ylabel('Category', fontsize=12)
 plt.tight_layout()
-plt.show()
+plt.savefig("bottom_5_categories_by_weight.png")
+plt.close()
 
 # Bar Plot: Sum of noPcs per Category
 plt.figure(figsize=(10, 6))
-sns.barplot(x='noPcs', y='CATEGORY',
+sns.barplot(x='noPcs', y='CATEGORY', 
             data=category_summary_sorted.head(15), palette='coolwarm')
 plt.title('Number of Pieces of Top 15 Categories', fontsize=16)
 plt.xlabel('Number of Pieces', fontsize=12)
 plt.ylabel('Category', fontsize=12)
 plt.tight_layout()
-plt.show()
+plt.savefig("top_15_categories_noPcs.png")
+plt.close()
 
 # Line Plot: Weight Over Time
-df['DocDate'] = pd.to_datetime(df['DocDate'])
-time_series = df.groupby('DocDate')['weight'].sum().reset_index()
+try:
+    df['DocDate'] = pd.to_datetime(df['DocDate'], errors='coerce')
+    time_series = df.groupby('DocDate')['weight'].sum().reset_index()
 
-plt.figure(figsize=(10, 6))
-sns.lineplot(x='DocDate', y='weight', data=time_series, marker='o', color='blue')
-plt.title('Total Weight Over Time', fontsize=16)
-plt.xlabel('Date', fontsize=12)
-plt.ylabel('Total Weight', fontsize=12)
-plt.tight_layout()
-plt.show()
+    plt.figure(figsize=(10, 6))
+    sns.lineplot(x='DocDate', y='weight', data=time_series, marker='o', color='blue')
+    plt.title('Total Weight Over Time', fontsize=16)
+    plt.xlabel('Date', fontsize=12)
+    plt.ylabel('Total Weight', fontsize=12)
+    plt.tight_layout()
+    plt.savefig("total_weight_over_time.png")
+    plt.close()
+except Exception as e:
+    print(f"Error in time-series plot: {e}")
 
