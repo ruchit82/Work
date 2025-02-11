@@ -60,6 +60,19 @@ def main():
                 sns.barplot(x='weight', y='parName', data=party_weight_summary.head(10), ax=ax)
                 ax.set_title('Top 10 Parties by Weight')
                 st.pyplot(fig)
+                
+                st.subheader("Distribution of Weight - Histogram")
+                fig, ax = plt.subplots(figsize=(8, 4))
+                sns.histplot(data['weight'], bins=20, kde=True, ax=ax)
+                ax.set_title("Distribution of Weight")
+                st.pyplot(fig)
+                
+                st.subheader("Category-wise Total Weight - Pie Chart")
+                category_summary = data.groupby('CATEGORY')['weight'].sum()
+                fig, ax = plt.subplots(figsize=(8, 4))
+                ax.pie(category_summary, labels=category_summary.index, autopct='%1.1f%%', startangle=90)
+                ax.set_title("Category-wise Distribution of Total Weight")
+                st.pyplot(fig)
 
 if __name__ == "__main__":
     main()
