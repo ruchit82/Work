@@ -67,12 +67,33 @@ def main():
                 ax.set_title("Distribution of Weight")
                 st.pyplot(fig)
                 
-                st.subheader("Category-wise Total Weight - Pie Chart")
-                category_summary = data.groupby('CATEGORY')['weight'].sum()
+                st.subheader("Category-wise Total Weight - Top 10 Categories - Pie Chart")
+                category_summary = data.groupby('CATEGORY')['weight'].sum().nlargest(10)
                 fig, ax = plt.subplots(figsize=(8, 4))
                 ax.pie(category_summary, labels=category_summary.index, autopct='%1.1f%%', startangle=90)
-                ax.set_title("Category-wise Distribution of Total Weight")
+                ax.set_title("Top 10 Categories by Total Weight")
                 st.pyplot(fig)
+                
+                st.subheader("Category-wise Total Weight - Bar Chart")
+                fig, ax = plt.subplots(figsize=(10, 5))
+                sns.barplot(x=category_summary.values, y=category_summary.index, ax=ax)
+                ax.set_title("Top 10 Categories by Total Weight")
+                st.pyplot(fig)
+                
+                st.subheader("Scatter Plot of Weight vs No. of Pieces")
+                fig, ax = plt.subplots(figsize=(8, 4))
+                sns.scatterplot(x='noPcs', y='weight', data=data, ax=ax)
+                ax.set_title("Weight vs No. of Pieces")
+                st.pyplot(fig)
+                
+                st.subheader("Box Plot of Weight by Category")
+                fig, ax = plt.subplots(figsize=(10, 5))
+                sns.boxplot(x='CATEGORY', y='weight', data=data, ax=ax)
+                ax.set_xticklabels(ax.get_xticklabels(), rotation=90)
+                ax.set_title("Weight Distribution by Category")
+                st.pyplot(fig)
+
+               
 
 if __name__ == "__main__":
     main()
